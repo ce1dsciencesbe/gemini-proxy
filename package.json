@@ -1,0 +1,13 @@
+{
+  "name": "gemini-proxy",
+  "version": "1.0.0",
+  "description": "Proxy CORS pour API Gemini",
+  "main": "api/gemini.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
