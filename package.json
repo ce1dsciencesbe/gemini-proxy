@@ -1,0 +1,13 @@
+{
+  "name": "chatbot-ce1d-sciences",
+  "version": "1.0.0",
+  "description": "Chatbot éducatif pour les révisions de sciences CE1D",
+  "main": "api/chat.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["chatbot", "education", "sciences", "ce1d"],
+  "author": "Ton nom",
+  "license": "MIT"
+}
