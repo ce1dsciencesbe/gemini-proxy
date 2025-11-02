@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Ton Prof iA - CE1D Sciences 🌱</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            line-height: 1.6;
+            color: #333;
+            width: 100%;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            background: linear-gradient(to right, #6C8E66, #49663E);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+            color: white;
+        }
+
+        #chat-box {
+            height: 60vh;
+            min-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            border: 1px solid #d1e7dd;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background-color: #C6DBC2;
+            margin-left: auto;
+            text-align: right;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background-color: #f9f9f9;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .ai-message strong {
+            font-weight: bold;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 15px;
+            border: 1px solid #d1e7dd;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #user-input:focus {
+            border-color: #6C8E66;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 142, 102, 0.25);
+        }
+
+        button {
+            background-color: #6C8E66;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #385426;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-chip {
+            background-color: #e9f8ef;
+            border: 1px solid #b3d9c2;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #385426;
+            font-weight: 500;
+        }
+
+        .suggestion-chip:hover {
+            background-color: #6C8E66;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .loading-dots span {
+            animation: loadingDots 1.4s infinite;
+            opacity: 0;
+            display: inline-block;
+            margin-left: 2px;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes loadingDots {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🤖 Ton Prof iA - CE1D Sciences 🌱</h1>
+        <p class="tagline">Je réponds à tes questions pour que tu réussisses ton CE1D.</p>
+    </header>
+
+    <div class="chat-container">
+        <div id="chat-box">
+            <div class="message ai-message">
+                Salut ! 👋 Je suis ton prof virtuel pour t'aider à réviser les sciences. Pose-moi tes questions ou clique sur un sujet ci-dessous ! 💻
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Pose ta question ici..." autocomplete="off">
+            <button id="send-btn" onclick="sendQuestion()">Envoyer</button>
+        </div>
+
+        <div class="suggestions">
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce que la nutrition ?')">Nutrition</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Comment fonctionne la respiration ?')">Respiration</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Explique la circulation sanguine')">Circulation</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce que la reproduction ?')">Reproduction</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Explique le concept d\'énergie')">Énergie</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'une force ?')">Force</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Différence entre corps purs et mélanges')">Corps purs et mélanges</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Explique les changements d\'état')">Changement d'état</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'une chaîne alimentaire ?')">Chaîne alimentaire</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'un réseau trophique ?')">Réseau trophique</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'un herbivore ?')">Herbivore</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'un carnivore ?')">Carnivore</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'un omnivore ?')">Omnivore</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'un producteur dans une chaîne alimentaire ?')">Producteur</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'un consommateur dans une chaîne alimentaire ?')">Consommateur</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce que la puberté ?')">Puberté</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'une source d\'énergie ?')">Source d'énergie</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'une énergie renouvelable ?')">Énergie renouvelable</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce que la gravité ?')">Gravité</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'un circuit électrique ?')">Circuit électrique</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'une solution ?')">Solution</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce que la fusion ?')">Fusion</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce que l\'évaporation ?')">Évaporation</button>
+            <button class="suggestion-chip" onclick="suggestionClick('Qu\'est-ce qu\'une molécule ?')">Molécule</button>
+        </div>
+    </div>
+
+    <script>
+        let isProcessing = false;
+
+        async function sendQuestion() {
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const question = userInput.value.trim();
+
+            if (question === '' || isProcessing) return;
+
+            isProcessing = true;
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+
+            addMessage(question, 'user');
+            userInput.value = '';
+
+            showLoading();
+
+            try {
+                // Appel à VOTRE API serverless Vercel (sécurisée)
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                hideLoading();
+                addMessage(data.response, 'ai');
+            } catch (error) {
+                console.error("Erreur:", error);
+                hideLoading();
+                
+                let errorMessage = "Une erreur s'est produite. ";
+                if (!navigator.onLine) {
+                    errorMessage += "Vérifie ta connexion internet.";
+                } else {
+                    errorMessage += "Réessaie ta question !";
+                }
+                
+                addMessage(errorMessage, 'ai');
+            } finally {
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                userInput.focus();
+                isProcessing = false;
+            }
+        }
+
+        function addMessage(content, sender) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+
+            const formattedContent = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            messageDiv.className = sender === 'user' ? 'message user-message' : 'message ai-message';
+            messageDiv.innerHTML = formattedContent;
+
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showLoading() {
+            const chatBox = document.getElementById('chat-box');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message ai-message loading';
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.innerHTML = 'Je réfléchis <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+            chatBox.appendChild(loadingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+        }
+
+        function suggestionClick(suggestion) {
+            if (isProcessing) return;
+            document.getElementById('user-input').value = suggestion;
+            sendQuestion();
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !isProcessing) {
+                sendQuestion();
+            }
+        });
+
+        window.onload = function() {
+            document.getElementById('user-input').focus();
+        };
+    </script>
+</body>
+</html>
